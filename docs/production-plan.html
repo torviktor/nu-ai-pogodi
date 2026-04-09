@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>«Ну, ИИ, погоди!» — Production Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red:#D92B2B;--yellow:#F5C842;--green:#2ECC71;--blue:#3B82F6;--purple:#8B5CF6;
+    --bg:#0E0E0E;--surface:#161616;--surface2:#1E1E1E;--border:#2A2A2A;
+    --text:#E8E8E0;--muted:#666;
+    --font-d:'Bebas Neue',sans-serif;--font-b:'Golos Text',sans-serif;--font-m:'JetBrains Mono',monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+
+  /* HEADER */
+  .site-header{position:relative;padding:60px 40px 48px;border-bottom:1px solid var(--border);overflow:hidden}
+  .hgrid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;opacity:.35}
+  .hinner{position:relative;max-width:1100px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .htitle{font-family:var(--font-d);font-size:clamp(52px,8vw,108px);line-height:.9;letter-spacing:.02em}
+  .tl1{color:var(--red);display:block}.tl2{color:var(--yellow);display:block}
+  .tl3{color:var(--text);display:block;opacity:.6;font-size:.42em;letter-spacing:.08em;margin-top:8px}
+  .hmeta{text-align:right;font-family:var(--font-m);font-size:11px;color:var(--muted);line-height:1.9}
+  .badge{display:inline-block;padding:3px 10px;border-radius:3px;font-family:var(--font-m);font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+  .br{background:var(--red);color:#fff}.by{background:var(--yellow);color:#000}
+  .bg{background:#1a3a28;color:var(--green);border:1px solid var(--green)}
+
+  /* NAV */
+  .snav{position:sticky;top:0;z-index:100;background:rgba(14,14,14,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px}
+  .ninner{max-width:1100px;margin:0 auto;display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+  .ninner::-webkit-scrollbar{display:none}
+  .nbtn{flex-shrink:0;padding:16px 22px;font-family:var(--font-m);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+  .nbtn:hover{color:var(--text)}.nbtn.active{color:var(--yellow);border-bottom-color:var(--yellow)}
+  .nsep{width:1px;background:var(--border);margin:12px 0;flex-shrink:0}
+
+  /* MAIN */
+  .main{max-width:1100px;margin:0 auto;padding:48px 40px 80px}
+  .panel{display:none;animation:fi .3s ease}.panel.active{display:block}
+  @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* SEC HEAD */
+  .shead{display:flex;align-items:center;gap:16px;margin-bottom:36px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+  .snum{font-family:var(--font-d);font-size:72px;line-height:1;color:var(--red);opacity:.25;flex-shrink:0;width:60px;text-align:center}
+  .sinfo h2{font-family:var(--font-d);font-size:32px;letter-spacing:.04em;color:var(--text);line-height:1}
+  .sinfo p{font-size:13px;color:var(--muted);margin-top:4px;font-family:var(--font-m)}
+
+  /* STEPS */
+  .steps{display:flex;flex-direction:column;gap:16px}
+  .step-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;transition:border-color .2s}
+  .step-card:hover{border-color:#3a3a3a}
+  .step-head{display:flex;align-items:center;gap:16px;padding:18px 20px;cursor:pointer;user-select:none}
+  .step-id{font-family:var(--font-m);font-size:11px;color:var(--muted);flex-shrink:0;width:28px}
+  .step-title{flex:1;font-weight:600;font-size:14px;color:var(--text)}
+  .step-arrow{flex-shrink:0;color:var(--muted);font-size:12px;transition:transform .25s}
+  .step-card.open .step-arrow{transform:rotate(180deg)}
+  .step-body{display:none;padding:0 20px 20px 64px}
+  .step-card.open .step-body{display:block}
+  .mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+  .mlabel{font-family:var(--font-m);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .mval{font-size:13px;color:var(--text);line-height:1.5}
+  .rbox{background:#1a0f0f;border:1px solid #3a1a1a;border-left:3px solid var(--red);border-radius:4px;padding:10px 14px;font-size:12.5px;color:#c89090;margin-top:12px;font-family:var(--font-m);line-height:1.6}
+  .rbox b{color:var(--red)}
+  .cbox{background:#0d1a12;border:1px solid #1a3a28;border-left:3px solid var(--green);border-radius:4px;padding:10px 14px;font-size:12.5px;color:#7ec899;margin-top:12px;font-family:var(--font-m);line-height:1.6}
+
+  /* WHO */
+  .who{font-family:var(--font-m);font-size:10px;font-weight:500;padding:3px 8px;border-radius:3px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+  .wc{background:#1a2540;color:var(--blue);border:1px solid #2a3a5a}
+  .wm{background:#1a1a0d;color:var(--yellow);border:1px solid #3a3a1a}
+  .wa{background:#1a0d1a;color:var(--purple);border:1px solid #3a1a3a}
+  .wk{background:#0d1a12;color:var(--green);border:1px solid #1a3a28}
+
+  /* SCENES */
+  .tl-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:32px;gap:2px}
+  .tl-seg{flex:1;border-radius:2px}
+  .sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .scard{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s}
+  .scard:hover{transform:translateY(-2px);border-color:#3a3a3a}
+  .scnum{font-family:var(--font-d);font-size:48px;line-height:1;opacity:.12;position:absolute;top:12px;right:16px}
+  .sctc{font-family:var(--font-m);font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:.06em}
+  .sctitle{font-weight:600;font-size:15px;margin-bottom:10px;color:var(--text)}
+  .scdesc{font-size:12.5px;color:#888;line-height:1.6;margin-bottom:10px}
+  .scvis{font-family:var(--font-m);font-size:11px;color:#666;border-top:1px solid var(--border);padding-top:10px;line-height:1.5}
+  .scvis b{color:var(--muted)}
+
+  /* PROMPTS */
+  .plist{display:flex;flex-direction:column;gap:20px}
+  .pitem{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .phead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);gap:12px}
+  .plabel{font-family:var(--font-m);font-size:11px;color:var(--muted);flex-shrink:0}
+  .pname{font-weight:600;font-size:13px;flex:1}
+  .ptags{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+  .tag{font-family:var(--font-m);font-size:10px;padding:2px 7px;border-radius:3px;background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+  .ptext{font-family:var(--font-m);font-size:12.5px;line-height:1.7;color:#bbb;padding:16px 18px;background:#111}
+  .pfoot{display:flex;justify-content:flex-end;padding:10px 18px;border-top:1px solid var(--border)}
+  .cpybtn{font-family:var(--font-m);font-size:11px;padding:6px 14px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s;letter-spacing:.04em;text-transform:uppercase}
+  .cpybtn:hover{border-color:var(--yellow);color:var(--yellow)}.cpybtn.ok{border-color:var(--green);color:var(--green)}
+
+  /* SOS */
+  .soscards{display:flex;flex-direction:column;gap:20px}
+  .soscard{border:1px solid #3a1a1a;border-left:4px solid var(--red);background:#120909;border-radius:6px;padding:24px}
+  .sosn{font-family:var(--font-d);font-size:13px;letter-spacing:.14em;color:var(--red);margin-bottom:6px}
+  .sostitle{font-size:18px;font-weight:600;margin-bottom:14px;color:var(--text)}
+  .sositems{display:flex;flex-direction:column;gap:8px}
+  .sositem{display:flex;gap:12px;font-size:13.5px;color:#aaa;line-height:1.5}
+  .sositem::before{content:'→';color:var(--red);flex-shrink:0;font-family:var(--font-m);margin-top:1px}
+  .sositem b{color:var(--text)}
+
+  /* CHECKLIST */
+  .clpanel{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+  .clitem{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;cursor:pointer;transition:border-color .15s,background .15s;user-select:none}
+  .clitem.done{border-color:#1a3a28;background:#0d1a12}
+  .clbox{width:20px;height:20px;border:1.5px solid var(--border);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+  .clitem.done .clbox{background:var(--green);border-color:var(--green);color:#000}
+  .cllabel{font-size:13px;color:var(--text);line-height:1.4}
+  .clitem.done .cllabel{color:#7ec899;text-decoration:line-through;text-decoration-color:#3a6a48}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--border);padding:32px 40px;text-align:center;font-family:var(--font-m);font-size:11px;color:var(--muted);line-height:2}
+  footer span{color:var(--red)}
+
+  @media(max-width:640px){
+    .site-header,.main{padding-left:20px;padding-right:20px}
+    .snav{padding:0 20px}
+    .step-body{padding-left:20px}
+    .mgrid{grid-template-columns:1fr}
+    footer{padding:24px 20px}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="hgrid"></div>
+  <div class="hinner">
+    <div class="htitle">
+      <span class="tl1">Ну, ИИ,</span>
+      <span class="tl2">Погоди!</span>
+      <span class="tl3">Production Plan · Союзмультфильм 90 лет</span>
+    </div>
+    <div class="hmeta">
+      <span class="badge br">60 сек.</span>&nbsp;<span class="badge by">9 сцен</span>&nbsp;<span class="badge bg">Full HD</span><br><br>
+      Дедлайн: 10.04.2026, 23:55<br>
+      Claude · GigaChat · Kandinsky · CapCut<br>
+      nuaipogodi.ru
+    </div>
+  </div>
+</header>
+
+<nav class="snav">
+  <div class="ninner">
+    <button class="nbtn active" onclick="show(event,'prep')">00 · Подготовка</button>
+    <div class="nsep"></div>
+    <button class="nbtn" onclick="show(event,'visual')">01 · Визуал</button>
+    <div class="nsep"></div>
+    <button class="nbtn" onclick="show(event,'anim')">02 · Анимация</button>
+    <div class="nsep"></div>
+    <button class="nbtn" onclick="show(event,'edit')">03 · Монтаж</button>
+    <div class="nsep"></div>
+    <button class="nbtn" onclick="show(event,'final')">04 · Финал</button>
+    <div class="nsep"></div>
+    <button class="nbtn" onclick="show(event,'scenes')">🎬 Сцены</button>
+    <div class="nsep"></div>
+    <button class="nbtn" onclick="show(event,'prompts')">📋 Промпты</button>
+    <div class="nsep"></div>
+    <button class="nbtn" onclick="show(event,'sos')">🚨 SOS</button>
+    <div class="nsep"></div>
+    <button class="nbtn" onclick="show(event,'check')">✅ Чек-лист</button>
+  </div>
+</nav>
+
+<main class="main">
+  <div id="panel-prep" class="panel active"><div class="shead"><div class="snum">0</div><div class="sinfo"><h2>Подготовка</h2><p>До первой генерации · Фундамент всего проекта</p></div></div><div class="steps" id="steps-prep"></div></div>
+  <div id="panel-visual" class="panel"><div class="shead"><div class="snum">1</div><div class="sinfo"><h2>Визуальная разработка</h2><p>GigaChat · Nano Banano · ChatGPT DALL·E</p></div></div><div class="steps" id="steps-visual"></div></div>
+  <div id="panel-anim" class="panel"><div class="shead"><div class="snum">2</div><div class="sinfo"><h2>Анимация</h2><p>GigaChat Video · Kandinsky 5.0 · [действие]+[стиль]+[камера]+[тайминг]+[9/0]</p></div></div><div class="steps" id="steps-anim"></div></div>
+  <div id="panel-edit" class="panel"><div class="shead"><div class="snum">3</div><div class="sinfo"><h2>Монтаж и таймлапс</h2><p>CapCut Desktop · Premiere Pro (резерв)</p></div></div><div class="steps" id="steps-edit"></div></div>
+  <div id="panel-final" class="panel"><div class="shead"><div class="snum">4</div><div class="sinfo"><h2>Финализация и подача</h2><p>ЯндексДиск · nuaipogodi.ru · 10.04.2026, 23:55</p></div></div><div class="steps" id="steps-final"></div></div>
+  <div id="panel-scenes" class="panel"><div class="shead"><div class="snum" style="opacity:.08;font-size:52px">🎬</div><div class="sinfo"><h2>9 Сцен · 60 секунд</h2><p>Одна сцена = одно движение = один промпт</p></div></div><div class="tl-bar" id="tlbar"></div><div class="sgrid" id="sgrid"></div></div>
+  <div id="panel-prompts" class="panel"><div class="shead"><div class="snum" style="opacity:.08;font-size:52px">📋</div><div class="sinfo"><h2>Библиотека промптов</h2><p>9 готовых промптов для GigaChat Video · нажмите copy для копирования</p></div></div><div class="plist" id="plist"></div></div>
+  <div id="panel-sos" class="panel"><div class="shead"><div class="snum" style="color:var(--red);opacity:.5">!</div><div class="sinfo"><h2>Экстренная помощь</h2><p>−24 часа до дедлайна · три шага которые спасут проект</p></div></div><div class="soscards" id="soscards"></div></div>
+  <div id="panel-check" class="panel"><div class="shead"><div class="snum" style="opacity:.08;font-size:52px">✓</div><div class="sinfo"><h2>Финальный чек-лист</h2><p>Нажмите на пункт чтобы отметить · прогресс сохраняется в браузере</p></div></div><div class="clpanel" id="clpanel"></div></div>
+</main>
+
+<footer><span>«Ну, ИИ, погоди!»</span> · Production Plan · Конкурс Союзмультфильм 90 лет · 2026<br>Claude · GigaChat Video · Kandinsky 5.0 · CapCut</footer>
+
+<script>
+const STEPS={
+  prep:[
+    {id:'0.1',t:'Скачать официальный пакет персонажей',w:'m',tool:'disk.360.yandex.ru/d/Kg5Thj8CkRHotg — ссылка из личного кабинета курса',inp:'Ссылка из nuaipogodi.ru → раздел «Материалы»',out:'PNG персонажей: Волк, Заяц, Матроскин с прозрачным фоном',chk:'Файлы есть? Формат PNG? Прозрачный фон? Нет обрезанных частей?',risk:'<b>Ссылка устарела</b> → искать в личном кабинете nuaipogodi.ru в разделе «Материалы»'},
+    {id:'0.2',t:'Составить библиотеку промптов (9 штук)',w:'c',tool:'Claude + вкладка «Промпты» в этом файле',inp:'Список сцен + стек инструментов',out:'9 готовых промптов с тегами #9и0 #таймлапс #консистентность',chk:'Каждый промпт ≤ 150 символов? Стиль Союзмультфильма упомянут? Цифры 9 и 0 есть?',risk:'<b>Длинный промпт</b> → GigaChat обрезает → делить на 2 запроса, стиль добавлять вторым'},
+    {id:'0.3',t:'Собрать папку референсов',w:'m',tool:'YouTube / скриншоты nuaipogodi.ru / скриншот интерфейса GigaChat',inp:'Классические кадры «Ну, погоди!» + интерфейс GigaChat',out:'Папка /refs с 10–15 изображениями — визуальный «якорь» проекта',chk:'Есть кадр 1936 г. (сепия)? Скриншот GigaChat? Волк анфас и сбоку?',risk:'<b>Авторские права</b> → использовать ТОЛЬКО официальные PNG от Союзмультфильма'},
+    {id:'0.4',t:'Настроить проект в CapCut: 1920×1080, 24 fps',w:'m',tool:'CapCut Desktop',inp:'CapCut установлен, папка проекта создана',out:'Пустой проект с правильными параметрами + сохранённый шаблон экспорта',chk:'FPS = 24? 1920×1080? H.264 выбран в экспорте?',risk:'<b>CapCut требует подписку</b> для H.264 → перекодировать через HandBrake (бесплатно) или Kdenlive'},
+    {id:'0.5',t:'Зафиксировать конкурсный чек-лист на виду',w:'c',tool:'Вкладка «Чек-лист» в этом файле',inp:'Требования nuaipogodi.ru',out:'9 пунктов которые нельзя забыть + дедлайн записан',chk:'Все 9 пунктов видны? Дедлайн 10.04.2026 23:55 записан?',risk:'<b>Забыть про открытый доступ</b> → модератор не сможет открыть ролик → работа не принята'},
+  ],
+  visual:[
+    {id:'1.1',t:'Ключевой кадр: Волк за компьютером с GigaChat на экране',w:'a',tool:'GigaChat (изображение) / Nano Banano',inp:'PNG Волка из официального пакета + промпт П-2',out:'3–5 PNG 1024×1024 без фона, Волк за компьютером',chk:'Волк узнаваем? Стиль перекладки 1970-х? На мониторе виден интерфейс?',risk:'<b>ИИ рисует другого зверя</b> → добавить «серый волк, уши торчком, белая рубашка» в промпт'},
+    {id:'1.2',t:'Ключевой кадр: Заяц с ползунком таймлайна 9→0',w:'a',tool:'GigaChat / Nano Banano',inp:'PNG Зайца из официального пакета + промпт П-4',out:'3–5 PNG: Заяц держит ползунок с цифрами 9 и 0',chk:'Цифры 9 и 0 чётко читаются? Заяц белый, уши длинные? Выражение уверенное?',risk:'<b>Цифры нечитаемы</b> → добавить их как текстовый оверлей в CapCut поверх клипа'},
+    {id:'1.3',t:'Фон: монтажный стол с интерфейсом Kandinsky',w:'a',tool:'ChatGPT DALL·E / Шедеврум',inp:'Промпт 1.3 + референс интерфейса редактора',out:'PNG фона 1920×1080, только UI-элементы без читаемого текста',chk:'Интерфейс похож на реальный редактор? Нет читаемого текста на кнопках?',risk:'<b>Мелкий текст на кнопках</b> → размыть или закрасить в Photopea (бесплатно онлайн)'},
+    {id:'1.4',t:'Сборная композиция: мета-финал (3 персонажа за столом)',w:'m',tool:'CapCut compositing / Canva',inp:'PNG персонажей × 3 + PNG фона из шага 1.3',out:'Финальная PNG: Волк + Заяц + Матроскин за монтажным столом',chk:'Масштаб персонажей соответствует фону? Нет плавающих теней?',risk:'<b>Разный стиль персонажей</b> → использовать ТОЛЬКО официальные PNG, не перегенерировать'},
+    {id:'1.5',t:'Проверка стилевой консистентности всех кадров',w:'c',tool:'Claude + ваши глаза',inp:'Описания и скриншоты всех 4 ключевых кадров',out:'Список правок ≤ 5 пунктов перед переходом к анимации',chk:'Единая цветовая палитра? Одинаковая «плоскость»? Нет реалистичных фото в наборе?',risk:'<b>Разные стили</b> → «якорь» = официальные PNG; всё остальное подгоняем под них'},
+  ],
+  anim:[
+    {id:'2.1',t:'Сцена 2: Волк открывает GigaChat',w:'a',tool:'GigaChat → Создать видео → По изображению',inp:'PNG из шага 1.1 + промпт П-2',out:'Клип 5–7 сек., Волк тянется к клавиатуре',chk:'Волк движется? Экран светится? Нет распада лица? Одно действие читается?',risk:'<b>Лицо «плывёт»</b> → уменьшить описание до 1 действия; пересгенерировать 3–5 раз'},
+    {id:'2.2',t:'Сцена 3: Волк пишет нелепый промпт (таймлапс ×3)',w:'a',tool:'GigaChat Video',inp:'PNG Волка + промпт П-3 (таймлапс, цифры 9 и 0)',out:'Клип 5–7 сек., лихорадочная печать, счётчик 9→0',chk:'Цифры 9 и 0 видны? Скорость читается как ×3? Выглядит суетливо?',risk:'<b>Клип статичный</b> → в CapCut добавить zoom + motion blur эффект вручную'},
+    {id:'2.3',t:'Сцена 4: Заяц перехватывает, таймлайн 9→0',w:'a',tool:'GigaChat Video',inp:'PNG Зайца + промпт П-4',out:'Клип 5–7 сек., Заяц уверенно за клавиатурой, 9→0 на экране',chk:'Цифры крупно видны? Заяц выглядит уверенно? Настроение изменилось от хаоса к порядку?',risk:'<b>Цифры исчезли</b> → добавить текстовым оверлеем в CapCut, жирный шрифт, яркий цвет'},
+    {id:'2.4',t:'Сцена 5: Взрыв генерации (таймлапс ×4)',w:'a',tool:'GigaChat Video',inp:'PNG монтажного стола + промпт П-5',out:'Клип 5–7 сек., кадры вылетают из монитора',chk:'Ощущение «взрыва» есть? Динамика высокая? Цвета яркие?',risk:'<b>Скучный результат</b> → в CapCut: keyframe zoom 100%→120% + motion blur overlay'},
+    {id:'2.5',t:'Сцена 6: Матроскин считает на таймлайне',w:'a',tool:'GigaChat Video',inp:'PNG Матроскина из официального пакета + промпт П-6',out:'Клип 5–7 сек., Матроскин и шкала 9→0',chk:'Матроскин узнаваем? Полосатый? Таймлайн с цифрами читается?',risk:'<b>Без полосок</b> → добавить «полосатый кот» явно; или заменить Матроскина на Зайца'},
+    {id:'2.6',t:'Сцена 7: Все жмут Render, цифра 90',w:'a',tool:'GigaChat Video',inp:'Сборная PNG из шага 1.4 + промпт П-7',out:'Клип 5–7 сек., момент рендера, цифра 90 на весь экран',chk:'Цифра 90 крупна и читаема? 2–3 персонажа в кадре? Торжественное настроение?',risk:'<b>Сцена перегружена</b> → сократить до 2 персонажей; 90 добавить текстом поверх в CapCut'},
+    {id:'2.7',t:'Сцена 8: Камера отъезжает (мета-финал)',w:'m',tool:'CapCut keyframe анимация',inp:'Все клипы смонтированы + PNG монтажного стола',out:'5 сек. зум-аут: монитор → стол → персонажи смотрят на себя',chk:'«Ролик внутри ролика» читается? Зум плавный? Это самый тихий момент?',risk:'<b>GigaChat не делает zoom-out</b> → CapCut: keyframe Scale 100%→60% за 4 секунды'},
+    {id:'2.8',t:'Сцена 1: Открывашка — архивный кадр оживает',w:'a',tool:'GigaChat Video + CapCut',inp:'PNG в стиле сепии + промпт П-1',out:'6 сек. переход от сепии к цвету, Заяц оживает',chk:'Эффект «оживания» читается? Цвет появляется постепенно? Зрительно красиво?',risk:'<b>GigaChat не колоризирует</b> → CapCut: два слоя B&W и цветной, анимировать opacity'},
+  ],
+  edit:[
+    {id:'3.1',t:'Сборка 9 клипов в хронологии 9→0',w:'k',tool:'CapCut Desktop',inp:'9 клипов в правильном порядке',out:'Черновой монтаж 60 сек.',chk:'Хронометраж ≤ 60 сек.? Порядок сцен 1→9? Нет пустых дыр на шкале?',risk:'<b>Клипы не склеиваются</b> → добавить однотонный переход 0.3 сек. между каждой сценой'},
+    {id:'3.2',t:'Таймлапс: ускорение сцен 3 и 5 до ×3–4',w:'k',tool:'CapCut → Speed → Curve',inp:'Клипы сцен 3 и 5 в черновом монтаже',out:'Сцены 3, 5 ускорены, остальные на ×1',chk:'Читаемость при ×3? Волк/Заяц узнаваемы? Нет артефактов?',risk:'<b>Артефакты</b> → включить Frame Blending в настройках Speed в CapCut'},
+    {id:'3.3',t:'Переходы между сценами (≤ 0.4 сек.)',w:'k',tool:'CapCut Transitions',inp:'Черновой монтаж из шага 3.1',out:'Монтаж с плавными переходами',chk:'Переходы не дольше 0.4 сек.? Нет чёрных вспышек? Темп не теряется?',risk:'<b>Морфинг платный</b> → заменить на Glitch или Zoom transition (бесплатно в CapCut)'},
+    {id:'3.4',t:'Звук: royalty-free тема + звуки ИИ в сценах 3 и 5',w:'m',tool:'CapCut Audio Library / fonau.ru',inp:'Музыкальная тема (НЕ оригинальная «Пусть бегут неуклюже»)',out:'Звуковая дорожка 60 сек. синхронизирована с монтажом',chk:'Музыка не перекрывает визуал? Звуки ИИ слышны? Лицензия Creative Commons?',risk:'<b>Авторские права</b> → использовать только fonau.ru или CapCut Music Library'},
+    {id:'3.5',t:'Текстовые оверлеи: цифры 9 и 0 в 3+ сценах',w:'k',tool:'CapCut Text',inp:'Смонтированное видео',out:'Цифры 9 и 0 читаются минимум в сценах 4, 6, 7',chk:'Цифры видны? Не перекрыты персонажами? Читаются на цветном фоне?',risk:'<b>Сливаются с фоном</b> → добавить белую обводку 2px или полупрозрачную подложку'},
+    {id:'3.6',t:'Цветокоррекция: единая насыщенная палитра',w:'k',tool:'CapCut Filters → Vibrant / Cartoon',inp:'Весь смонтированный ролик',out:'Единый цветокорр. применён ко всем сценам',chk:'Все сцены одного тона? Нет пересвета? Похоже на стиль Союзмультфильма?',risk:'<b>Разная яркость клипов</b> → корректировать каждый клип ОТДЕЛЬНО перед применением фильтра'},
+  ],
+  final:[
+    {id:'4.1',t:'Финальный просмотр: смотрим как незнакомец',w:'m',tool:'Любой видеоплеер — НЕ монтажная программа',inp:'Черновик из Этапа 3',out:'Список правок ≤ 5 пунктов',chk:'История понятна без объяснений? Начало-середина-финал есть? Хочется досмотреть?',risk:'<b>Замыленный взгляд</b> → попросить кого-то постороннего назвать 1 вопрос после просмотра'},
+    {id:'4.2',t:'Проверка по конкурсному чек-листу (9 пунктов)',w:'c',tool:'Вкладка «Чек-лист» в этом файле',inp:'Финальный ролик',out:'Все 9 пунктов отмечены зелёным',chk:'30–60 сек ✓ MP4 ✓ Full HD ✓ цифры 9 и 0 ✓ ИИ ✓ поздравление ✓ доступ открыт ✓',risk:'<b>Не укладываемся в 60 сек.</b> → убрать сцену 6 (Матроскин), сократить титр до 3 сек.'},
+    {id:'4.3',t:'Экспорт: MP4, 1920×1080, H.264, ≤ 100 МБ',w:'k',tool:'CapCut Export → Custom → H.264',inp:'Финальный проект',out:'Файл .mp4 ≤ 100 МБ без водяного знака',chk:'Файл открывается в обычном плеере? ≤ 100 МБ? НЕТ водяного знака CapCut?',risk:'<b>Водяной знак CapCut</b> → перекодировать через HandBrake с обрезкой области знака'},
+    {id:'4.4',t:'Загрузка на ЯндексДиск, открытый доступ',w:'m',tool:'disk.yandex.ru / sberdisk.ru',inp:'MP4-файл из шага 4.3',out:'Публичная ссылка на ПАПКУ (не на файл!) с открытым доступом',chk:'Ссылка открывается в режиме инкогнито? Видео воспроизводится без авторизации?',risk:'<b>Доступ закрыт</b> → проверить настройки ПАПКИ, не файла → модератор не примет иначе'},
+    {id:'4.5',t:'Отправка заявки до 10.04.2026, 23:55',w:'m',tool:'nuaipogodi.ru → Загрузка анимационного фильма',inp:'Ссылка на папку ЯндексДиска',out:'Статус «На проверке» → затем «Принято»',chk:'Ссылка вставлена в форму? Кнопка «Отправить» нажата? Статус изменился?',risk:'<b>Статус «Требует доработки»</b> → исправить и подать снова до дедлайна. Можно 5 роликов!'},
+  ],
+};
+
+const WHO={c:{cls:'wc',l:'Claude'},m:{cls:'wm',l:'Вручную'},a:{cls:'wa',l:'GigaChat AI'},k:{cls:'wk',l:'CapCut'}};
+
+const SCENES=[
+  {n:1,tc:'00:00–00:06',c:'#8B5CF6',t:'Пробуждение плёнки',d:'Архивный кадр в сепии: кинокатушка, силуэт Зайца. Медленно проникают цвета 1970-х. Заяц оживает и смотрит прямо на нас.',v:'Переход B&W→цвет через opacity. Зернистость плёнки — текстура. Музыка начинается тихо.'},
+  {n:2,tc:'00:06–00:12',c:'#3B82F6',t:'Волк открывает GigaChat',d:'Волк за компьютером. На мониторе — интерфейс GigaChat. Осторожно тянется к клавиатуре с видом первого дня.',v:'Вид сбоку. Тёплый свет монитора. Реальный скриншот GigaChat встроен в сцену.'},
+  {n:3,tc:'00:13–00:19',c:'#EF4444',t:'Нелепый промпт (таймлапс ×3)',d:'Волк лихорадочно печатает «Сделай меня красивым!». Kandinsky выдаёт абсурд. Волк роняет мышку. Счётчик: 9...8...7...',v:'Ускорение ×3. Стук клавиш. Звук ошибки. Цифры 9 и 0 в углу экрана.'},
+  {n:4,tc:'00:20–00:25',c:'#F5C842',t:'Заяц перехватывает',d:'Заяц отодвигает Волка плечом. Уверенно вводит правильный промпт. На экране — таймлайн с 9 и 0.',v:'Пауза в музыке. Тема становится увереннее. Цифры 9→0 на треть экрана.'},
+  {n:5,tc:'00:26–00:32',c:'#2ECC71',t:'Взрыв генерации',d:'Таймлапс ×4. Из монитора вылетают кадры — Умка, Бременские, Винни-Пух. Волк пытается их ловить. Смеётся.',v:'Motion blur. Музыка на пике. Счётчик: 5...4...3...'},
+  {n:6,tc:'00:33–00:39',c:'#06B6D4',t:'Матроскин считает',d:'Матроскин за монтажным столом. Шкала 9→0. Ворчит «Неправильно ты, Волк, промпт пишешь». Волк обиженно надувается.',v:'Спокойная сцена. Крупный план таймлайна. Цифры 9 и 0 чётко видны.'},
+  {n:7,tc:'00:40–00:46',c:'#F97316',t:'Все жмут Render',d:'Волк, Заяц и Матроскин переглядываются. Нажимают кнопку одновременно. Экран вспыхивает. Цифра 90 на весь экран.',v:'Самый яркий момент. Все трое вместе. Музыка на кульминации.'},
+  {n:8,tc:'00:47–00:53',c:'#8B5CF6',t:'Камера отъезжает',d:'Зум-аут: мы видим монтажный стол, за ним — Волк и Заяц. На их экране идёт наш ролик. Ролик внутри ролика.',v:'Тихая сцена. Keyframe scale 100%→60%. Полная тишина. Главный твист.'},
+  {n:9,tc:'00:54–01:00',c:'#D92B2B',t:'Финальный титр',d:'Яркий фон. «СОЮЗМУЛЬТФИЛЬМ — 90 ЛЕТ». Волк и Заяц машут рукой. Цифры 9 и 0 светятся внизу. Fade out.',v:'Шрифт в духе советского плаката. 2 секунды на финальном кадре.'},
+];
+
+const PROMPTS=[
+  {id:'П-1',s:'Сцена 1 — Открывашка: оживание архива',tags:['#таймлапс','#открывашка'],txt:'Серый волк в стиле перекладной анимации Союзмультфильма 1970-х годов смотрит на старую кинокатушку, которая постепенно начинает светиться и превращаться в современный экран. Плавное движение, тёплые цвета сепии переходят в яркие. Камера статична, 5 секунд.'},
+  {id:'П-2',s:'Сцена 2 — Волк открывает GigaChat',tags:['#персонаж','#экспозиция'],txt:'Серый волк в стиле перекладной анимации Союзмультфильма сидит за компьютером, на мониторе светится интерфейс с текстовым полем. Волк медленно тянется к клавиатуре. Вид сбоку, яркий плоский стиль, 6 секунд.'},
+  {id:'П-3',s:'Сцена 3 — Нелепый промпт (таймлапс ×3)',tags:['#таймлапс','#юмор','#9и0'],txt:'Таймлапс в 3 раза, серый волк в стиле Союзмультфильма лихорадочно печатает на клавиатуре, экран мигает красными сообщениями об ошибках, в углу экрана мелькают цифры 9 и 0 как счётчик. Волк роняет мышь. Вид сверху, яркие цвета, 5 секунд.'},
+  {id:'П-4',s:'Сцена 4 — Заяц перехватывает управление',tags:['#9и0','#ключевой'],txt:'Белый заяц с длинными ушами в стиле перекладной анимации Союзмультфильма уверенно садится за клавиатуру. На экране появляется таймлайн с крупными светящимися цифрами 9 и 0 как ползунок. Заяц улыбается. Вид спереди, 6 секунд.'},
+  {id:'П-5',s:'Сцена 5 — Взрыв генерации',tags:['#таймлапс','#динамика'],txt:'Таймлапс 4 раза, из монитора компьютера в стиле Союзмультфильма вылетают яркие анимационные кадры, которые заполняют весь экран. Плоский мультяшный стиль, взрывные яркие цвета, эффект потока изображений. Камера слегка зумирует к монитору, 5 секунд.'},
+  {id:'П-6',s:'Сцена 6 — Матроскин считает секунды',tags:['#персонаж','#9и0'],txt:'Полосатый кот Матроскин в стиле Союзмультфильма смотрит на длинный таймлайн монтажного стола. На шкале крупно видны цифры 9 и 0, ползунок медленно движется. Матроскин ворчит и считает на пальцах. Вид сбоку, 6 секунд.'},
+  {id:'П-7',s:'Сцена 7 — Все жмут Render',tags:['#кульминация','#90лет'],txt:'Волк и Заяц в стиле перекладной анимации Союзмультфильма одновременно нажимают большую кнопку на мониторе. Экран вспыхивает, из него вырывается цифра 90 в стиле праздничного плаката. Торжественный момент, яркий свет, 5 секунд.'},
+  {id:'П-8',s:'Сцена 8 — Камера отъезжает (мета-финал)',tags:['#мета','#финал'],txt:'Камера медленно отъезжает назад. Видно, что Волк и Заяц в стиле перекладной анимации сидят за монтажным столом и смотрят на экран, где идёт этот же самый ролик. Плавный зум-аут, 5 секунд.'},
+  {id:'П-9',s:'Сцена 9 — Финальный титр',tags:['#титр','#90лет'],txt:'Яркий плоский фон в цветах Союзмультфильма, крупная надпись «90 лет» и цифры 9 и 0 на переднем плане. Волк и Заяц стоят по бокам и машут рукой зрителю. Стиль перекладной анимации, праздничное настроение, 6 секунд.'},
+];
+
+const SOS=[
+  {n:'ШАГ 1',time:'Часы 1–6',t:'Режим «Минимальный жизнеспособный ролик»',items:[
+    'Забудьте про 9 сцен. Нужны <b>3 ключевых клипа</b>: Открывашка + Середина с цифрами + Финальный титр',
+    'Инструмент: только GigaChat Video (1 промпт → 1 клип × 3) + CapCut',
+    'Цель: <b>30–35 секунд</b>, все обязательные требования конкурса выполнены',
+    'НЕ начинать заново — только добавить недостающее к тому что уже есть',
+  ]},
+  {n:'ШАГ 2',time:'Часы 7–16',t:'Закрыть обязательные требования любой ценой',items:[
+    '<b>Нет цифр 9 и 0?</b> → Добавить огромным шрифтом поверх любой сцены в CapCut. 2 минуты.',
+    '<b>Меньше 30 сек.?</b> → Замедлить 2 сцены до ×0.75 или добавить паузу на финальном титре',
+    '<b>Больше 60 сек.?</b> → Удалить сцену 6 (Матроскин) и сократить титр до 2 сек.',
+    '<b>Нет ИИ в кадре?</b> → Вставить скриншот интерфейса GigaChat в любую сцену на 5 сек.',
+    '<b>Водяной знак?</b> → HandBrake: обрезать область при перекодировании',
+  ]},
+  {n:'ШАГ 3',time:'Часы 17–24',t:'Экспорт → Загрузка → Отправка',items:[
+    'Экспортировать MP4 через CapCut или HandBrake. Проверить: нет водяного знака, ≤ 100 МБ',
+    'Открыть ссылку в режиме «Инкогнито» — воспроизводится ли видео без авторизации?',
+    'Отправить ссылку на <b>nuaipogodi.ru</b> до 10 апреля 2026, 23:55',
+    'Если статус «Требует доработки» — исправить и подать снова. <b>Можно до 5 роликов!</b>',
+  ]},
+];
+
+const CL=[
+  'Длительность ролика — от 30 до 60 секунд',
+  'Формат кадра — 16:9 или 9:16',
+  'Формат файла — MP4 или MOV',
+  'Разрешение — не ниже 1920×1080 (Full HD)',
+  'Ролик загружен на ЯндексДиск или СберДиск',
+  'Доступ открыт без авторизации (проверено в инкогнито)',
+  'Видео открывается и воспроизводится корректно',
+  'В ролике есть цифры 9 и 0',
+  'Тема — поздравление Союзмультфильма с 90-летием',
+  'При создании использованы нейросети',
+  'Работа оригинальная, авторские права соблюдены',
+  'Ссылка вставлена в форму на nuaipogodi.ru и отправлена',
+];
+
+function renderSteps(key,id){
+  document.getElementById(id).innerHTML=STEPS[key].map(s=>{
+    const w=WHO[s.w];
+    return`<div class="step-card" onclick="tog(this)">
+      <div class="step-head">
+        <span class="step-id">${s.id}</span>
+        <span class="step-title">${s.t}</span>
+        <span class="who ${w.cls}">${w.l}</span>
+        <span class="step-arrow">▾</span>
+      </div>
+      <div class="step-body">
+        <div class="mgrid">
+          <div><div class="mlabel">Инструмент</div><div class="mval">${s.tool}</div></div>
+          <div><div class="mlabel">Вход</div><div class="mval">${s.inp}</div></div>
+          <div><div class="mlabel">Выход</div><div class="mval">${s.out}</div></div>
+        </div>
+        <div class="cbox">✓ ${s.chk}</div>
+        <div class="rbox">⚠ ${s.risk}</div>
+      </div></div>`;
+  }).join('');
+}
+
+function renderScenes(){
+  document.getElementById('tlbar').innerHTML=SCENES.map(s=>`<div class="tl-seg" style="background:${s.c}" title="Сцена ${s.n}"></div>`).join('');
+  document.getElementById('sgrid').innerHTML=SCENES.map(s=>`
+    <div class="scard" style="border-top:3px solid ${s.c}">
+      <div class="scnum">${s.n}</div>
+      <div class="sctc">${s.tc}</div>
+      <div class="sctitle">${s.t}</div>
+      <div class="scdesc">${s.d}</div>
+      <div class="scvis"><b>ВИЗУАЛ:</b> ${s.v}</div>
+    </div>`).join('');
+}
+
+function renderPrompts(){
+  document.getElementById('plist').innerHTML=PROMPTS.map(p=>`
+    <div class="pitem">
+      <div class="phead">
+        <span class="plabel">${p.id}</span>
+        <span class="pname">${p.s}</span>
+        <div class="ptags">${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="ptext">${p.txt}</div>
+      <div class="pfoot"><button class="cpybtn" onclick="cp(this,'${p.id}')">copy</button></div>
+    </div>`).join('');
+}
+
+function renderSOS(){
+  document.getElementById('soscards').innerHTML=SOS.map(s=>`
+    <div class="soscard">
+      <div class="sosn">${s.n} · ${s.time}</div>
+      <div class="sostitle">${s.t}</div>
+      <div class="sositems">${s.items.map(i=>`<div class="sositem">${i}</div>`).join('')}</div>
+    </div>`).join('');
+}
+
+function renderCL(){
+  const saved=JSON.parse(localStorage.getItem('nu-ai-cl')||'[]');
+  document.getElementById('clpanel').innerHTML=CL.map((item,i)=>{
+    const d=saved.includes(i)?'done':'';
+    return`<div class="clitem ${d}" onclick="tgcl(this,${i})">
+      <div class="clbox">${d?'✓':''}</div>
+      <div class="cllabel">${item}</div>
+    </div>`;
+  }).join('');
+}
+
+function show(e,id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  e.currentTarget.classList.add('active');
+}
+
+function tog(card){card.classList.toggle('open')}
+
+function cp(btn,id){
+  const p=PROMPTS.find(x=>x.id===id);
+  navigator.clipboard.writeText(p.txt).then(()=>{
+    btn.textContent='copied!';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('ok');},2000);
+  });
+}
+
+function tgcl(el,idx){
+  el.classList.toggle('done');
+  el.querySelector('.clbox').textContent=el.classList.contains('done')?'✓':'';
+  const saved=JSON.parse(localStorage.getItem('nu-ai-cl')||'[]');
+  if(el.classList.contains('done')){if(!saved.includes(idx))saved.push(idx);}
+  else{const i=saved.indexOf(idx);if(i!==-1)saved.splice(i,1);}
+  localStorage.setItem('nu-ai-cl',JSON.stringify(saved));
+}
+
+renderSteps('prep','steps-prep');
+renderSteps('visual','steps-visual');
+renderSteps('anim','steps-anim');
+renderSteps('edit','steps-edit');
+renderSteps('final','steps-final');
+renderScenes();renderPrompts();renderSOS();renderCL();
+</script>
+</body>
+</html>
